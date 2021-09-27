@@ -22,7 +22,7 @@ def logger(_filepath):
             with open(f'{_filepath}\\result.txt', 'w') as f:
                 f.write(data)
             f.close()
-            return data
+            return func_result
         return replaced_func
     return habr
 

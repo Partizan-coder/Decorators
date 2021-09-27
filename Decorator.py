@@ -3,35 +3,16 @@ import os
 import requests
 from bs4 import BeautifulSoup
 
-
 filepath = os.path.join(os.getcwd())
 
 def logger(_filepath):
-
-
-    def habr(function):
-
-        nonlocal _filepath
-
-        func_name = None
-        func_time = None
-        func_args = None
-        func_kwargs = None
-        func_result = None
-
+    def habr(func):
         def replaced_func(*args, **kwargs):
-
-            nonlocal func_name
-            nonlocal func_time
-            nonlocal func_args
-            nonlocal func_result
-            nonlocal func_kwargs
-            func_name = function.__name__
+            func_name = func.__name__
             func_time = datetime.datetime.now()
             func_args = args
             func_kwargs = kwargs
-            func_result = function(*args, **kwargs)
-#
+            func_result = func(*args, **kwargs)
             data = f'Результат работы декоратора: \n' \
                    f'Имя функции:    {func_name}  \n' \
                    f'Время запуска функции:    {func_time} \n' \
@@ -41,14 +22,14 @@ def logger(_filepath):
             with open(f'{_filepath}\\result.txt', 'w') as f:
                 f.write(data)
             f.close()
+            return data
         return replaced_func
     return habr
 
 @logger(filepath)
 def habrparser():
-
     response = requests.get('https://habr.com/ru/all')
-    KEYWORDS = {'IT-компании', 'Блог компании Pixonic'}
+    KEYWORDS = {'IT-инфраструктура', 'Блог компании АйПиМатика', 'PHP *', 'Python *', 'Стандарты связи'}
     href = []
 
     if not response.ok:
@@ -60,11 +41,9 @@ def habrparser():
         for article in articles:
             hubs = {h.text for h in article.find_all('a', class_='tm-article-snippet__hubs-item-link')}
             if KEYWORDS & hubs:
-                # time_post = article.find(class_="tm-article-snippet__datetime-published").time.get('title')[:10]
-                # header = article.find(class_="tm-article-snippet__title tm-article-snippet__title_h2").text
                 href.append(article.find('a', class_="tm-article-snippet__title-link").attrs.get('href'))
     return href
 
-
 if __name__ == '__main__':
-    habrparser()
+    result = habrparser()
+    print(result)
